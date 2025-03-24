@@ -18,7 +18,7 @@ SECRET_KEY = 'django-insecure-7$18%##c6h9go3qb5o(iwwmztq=d4#6f=$59bdb7kv_hbgszr2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['meatproject.onrender.com', '127.0.0.1', 'localhost']
 
 # Application definition
 
