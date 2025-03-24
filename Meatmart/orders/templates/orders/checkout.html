@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2>Checkout</h2>
+
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'orders:place_order' %}" id="checkout-form">
+        {% csrf_token %}
+        
+        <!-- Hidden fields for Razorpay -->
+        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+        <input type="hidden" name="razorpay_order_id" id="razorpay_order_id" value="{{ razorpay_order_id }}">
+        <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+        
+        <div class="row">
+            <!-- Order Items -->
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Order Items</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for item in cart_items %}
+                        <div class="d-flex mb-3">
+                            <div class="flex-shrink-0">
+                                <img src="{{ item.product.image.url }}" 
+                                     alt="{{ item.product.name }}"
+                                     style="width: 100px; height: 100px; object-fit: cover;">
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5 class="mb-1">{{ item.product.name }}</h5>
+                                <p class="mb-1">
+                                    {{ item.quantity }}kg × ₹{{ item.product.price_per_kg }}/kg
+                                    = ₹{{ item.total }}
+                                </p>
+                                <p class="text-muted mb-0">Seller: {{ item.product.seller.get_full_name }}</p>
+                                
+                                <!-- Stock Status -->
+                                <div class="mt-2">
+                                    {% if item.quantity <= item.product.stock_quantity %}
+                                        <span class="badge bg-success">
+                                            In Stock ({{ item.product.stock_quantity }}kg available)
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger">
+                                            Insufficient Stock (only {{ item.product.stock_quantity }}kg available)
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% if not forloop.last %}<hr>{% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Delivery Address -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Delivery Address</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if addresses %}
+                        <div class="row">
+                            {% for address in addresses %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card {% if address.is_default %}border-primary{% endif %}">
+                                    <div class="card-body">
+                                        <div class="form-check">
+                                            <input class="form-check-input" 
+                                                   type="radio" 
+                                                   name="address_id" 
+                                                   value="{{ address.id }}"
+                                                   {% if address.is_default %}checked{% endif %}
+                                                   required>
+                                            <label class="form-check-label">
+                                                <strong>{{ address.name }}</strong><br>
+                                                {{ address.street_address }}<br>
+                                                {{ address.city }}, {{ address.state }}<br>
+                                                {{ address.postal_code }}<br>
+                                                Phone: {{ address.phone }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning">
+                            Please add a delivery address to continue.
+                            <a href="{% url 'accounts:add_address' %}" class="alert-link">Add Address</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Delivery Slot -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Delivery Slot</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Date Selection -->
+                        <div class="mb-4">
+                            <label class="form-label">Select Delivery Date</label>
+                            <div class="row g-2">
+                                {% for date in available_dates %}
+                                <div class="col-auto">
+                                    <input type="radio" 
+                                           class="btn-check" 
+                                           name="delivery_date" 
+                                           id="date_{{ forloop.counter }}" 
+                                           value="{{ date.date }}"
+                                           {% if forloop.first %}checked{% endif %}
+                                           required>
+                                    <label class="btn btn-outline-primary" for="date_{{ forloop.counter }}">
+                                        <small class="d-block">{{ date.day }}</small>
+                                        <strong class="d-block">{{ date.date_num }}</strong>
+                                        <small class="d-block">{{ date.month }}</small>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Time Selection -->
+                        <div>
+                            <label class="form-label">Select Delivery Time</label>
+                            <div class="row g-2">
+                                {% for time in available_times %}
+                                <div class="col-md-4">
+                                    <input type="radio" 
+                                           class="btn-check" 
+                                           name="delivery_time" 
+                                           id="time_{{ forloop.counter }}" 
+                                           value="{{ time }}"
+                                           {% if forloop.first %}checked{% endif %}
+                                           required>
+                                    <label class="btn btn-outline-primary w-100" for="time_{{ forloop.counter }}">
+                                        {{ time }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <span>₹{{ subtotal }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Delivery Fee</span>
+                            <span>₹{{ delivery_fee }}</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <strong>Total</strong>
+                            <strong class="text-primary">₹{{ total }}</strong>
+                        </div>
+
+                        {% if has_stock_issues %}
+                        <div class="alert alert-danger">
+                            Some items have stock availability issues. 
+                            Please update your cart before proceeding.
+                        </div>
+                        {% endif %}
+
+                        <button type="button" 
+                                id="rzp-button"
+                                class="btn btn-primary btn-lg w-100" 
+                                {% if has_stock_issues or not addresses %}disabled{% endif %}>
+                            Pay ₹{{ total }} Securely
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var options = {
+        "key": "{{ razorpay_key_id }}",
+        "amount": "{{ total|floatformat:'0' }}00",
+        "currency": "INR",
+        "name": "Fishland",
+        "description": "Order Payment",
+        "image": "{% static 'img/logo.png' %}",
+        "order_id": "{{ razorpay_order_id }}",
+        "handler": function (response) {
+            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+            document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+            document.getElementById('razorpay_signature').value = response.razorpay_signature;
+            document.getElementById('checkout-form').submit();
+        },
+        "prefill": {
+            "name": "{{ request.user.get_full_name }}",
+            "email": "{{ request.user.email }}",
+            "contact": "{{ request.user.phone }}"
+        },
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+    
+    var rzp = new Razorpay(options);
+    
+    document.getElementById('rzp-button').onclick = function(e) {
+        rzp.open();
+        e.preventDefault();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add New Address - MeatMart{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/address_form.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock extra_css %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="address-container">
+        <div class="row g-4">
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <div class="profile-sidebar">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="flex-shrink-0">
+                                <img src="{% static 'images/default-avatar.png' %}" alt="Profile" 
+                                     class="profile-image rounded-circle">
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5 class="mb-0">{{ user.get_full_name }}</h5>
+                                <small class="text-muted">{{ user.email }}</small>
+                            </div>
+                        </div>
+                        
+                        <div class="nav flex-column nav-pills">
+                            <a class="nav-link" href="{% url 'buyer:dashboard' %}">
+                                <i class="fas fa-home"></i> Dashboard
+                            </a>
+                            <a class="nav-link" href="{% url 'buyer:order_list' %}">
+                                <i class="fas fa-shopping-bag"></i> My Orders
+                            </a>
+                            <a class="nav-link active" href="{% url 'buyer:addresses' %}">
+                                <i class="fas fa-map-marker-alt"></i> Addresses
+                            </a>
+                            <a class="nav-link" href="{% url 'account_email' %}">
+                                <i class="fas fa-envelope"></i> Email Settings
+                            </a>
+                            <a class="nav-link" href="{% url 'account_change_password' %}">
+                                <i class="fas fa-lock"></i> Change Password
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <div class="address-form-card">
+                    <div class="address-form-header">
+                        <h4><i class="fas fa-plus-circle me-2"></i>Add New Address</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            {% if messages %}
+                            <div class="alert alert-danger">
+                                {% for message in messages %}
+                                    {{ message }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            <div class="row g-4">
+                                <!-- Label -->
+                                <div class="col-md-6">
+                                    <label class="form-label required-field">Address Label</label>
+                                    <input type="text" name="label" class="form-control" required
+                                           placeholder="e.g., Home, Office">
+                                </div>
+                                
+                                <!-- Full Name -->
+                                <div class="col-md-6">
+                                    <label class="form-label required-field">Full Name</label>
+                                    <input type="text" name="name" class="form-control" required
+                                           placeholder="Enter your full name">
+                                </div>
+                                
+                                <!-- Phone -->
+                                <div class="col-md-6">
+                                    <label class="form-label required-field">Phone Number</label>
+                                    <input type="tel" name="phone" class="form-control" required
+                                           pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number"
+                                           placeholder="Enter 10-digit mobile number">
+                                </div>
+                                
+                                <!-- Address Line 1 -->
+                                <div class="col-12">
+                                    <label class="form-label required-field">Address Line 1</label>
+                                    <input type="text" name="address_line1" class="form-control" required
+                                           placeholder="House/Flat No., Building Name, Street">
+                                </div>
+                                
+                                <!-- Address Line 2 -->
+                                <div class="col-12">
+                                    <label class="form-label">Address Line 2</label>
+                                    <input type="text" name="address_line2" class="form-control"
+                                           placeholder="Landmark, Area (Optional)">
+                                </div>
+                                
+                                <!-- City -->
+                                <div class="col-md-4">
+                                    <label class="form-label required-field">City</label>
+                                    <input type="text" name="city" class="form-control" required
+                                           placeholder="Enter city name">
+                                </div>
+                                
+                                <!-- State -->
+                                <div class="col-md-4">
+                                    <label class="form-label required-field">State</label>
+                                    <select name="state" class="form-select" required>
+                                        <option value="">Select State</option>
+                                        <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                        <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                                        <option value="Assam">Assam</option>
+                                        <option value="Bihar">Bihar</option>
+                                        <option value="Chhattisgarh">Chhattisgarh</option>
+                                        <option value="Goa">Goa</option>
+                                        <option value="Gujarat">Gujarat</option>
+                                        <option value="Haryana">Haryana</option>
+                                        <option value="Himachal Pradesh">Himachal Pradesh</option>
+                                        <option value="Jharkhand">Jharkhand</option>
+                                        <option value="Karnataka">Karnataka</option>
+                                        <option value="Kerala">Kerala</option>
+                                        <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                        <option value="Maharashtra">Maharashtra</option>
+                                        <option value="Manipur">Manipur</option>
+                                        <option value="Meghalaya">Meghalaya</option>
+                                        <option value="Mizoram">Mizoram</option>
+                                        <option value="Nagaland">Nagaland</option>
+                                        <option value="Odisha">Odisha</option>
+                                        <option value="Punjab">Punjab</option>
+                                        <option value="Rajasthan">Rajasthan</option>
+                                        <option value="Sikkim">Sikkim</option>
+                                        <option value="Tamil Nadu">Tamil Nadu</option>
+                                        <option value="Telangana">Telangana</option>
+                                        <option value="Tripura">Tripura</option>
+                                        <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                        <option value="Uttarakhand">Uttarakhand</option>
+                                        <option value="West Bengal">West Bengal</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Pincode -->
+                                <div class="col-md-4">
+                                    <label class="form-label required-field">Pincode</label>
+                                    <input type="text" name="pincode" class="form-control" required
+                                           pattern="[0-9]{6}" title="Please enter a valid 6-digit pincode"
+                                           placeholder="Enter 6-digit pincode">
+                                </div>
+                                
+                                <!-- Is Default -->
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="is_default" class="form-check-input" id="isDefault">
+                                        <label class="form-check-label" for="isDefault">
+                                            Set as default address
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Buttons -->
+                                <div class="col-12 text-end mt-4">
+                                    <a href="{% url 'buyer:addresses' %}" class="btn btn-cancel">
+                                        Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-submit-address">
+                                        <i class="fas fa-check me-2"></i>Save Address
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

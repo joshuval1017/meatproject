@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Fresh Meat Products - MEATMART{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #4bdba0;
+        --primary-dark: #000000;
+        --text-dark: #2c3e50;
+        --text-light: #7f8c8d;
+    }
+
+    .filters-section {
+        background: #fff;
+        padding: 1.5rem 0;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .search-and-categories {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .search-container {
+        flex: 1;
+        min-width: 300px;
+    }
+
+    .categories-container {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .category-tag {
+        display: inline-block;
+        padding: 0.5rem 1.2rem;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-dark);
+        background: #f8f9fa;
+        border: 2px solid #eee;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .category-tag:hover, .category-tag.active {
+        background: linear-gradient(135deg, #090909, var(--primary-dark));
+        color: white;
+        border-color: transparent;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .search-box {
+        border-radius: 25px;
+        padding: 0.8rem 1.5rem;
+        border: 2px solid #eee;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .search-box:focus {
+        border-color: var(--primary);
+        box-shadow: none;
+    }
+    
+    .search-btn {
+        border-radius: 0 25px 25px 0;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border: none;
+        padding: 0.8rem 1.5rem;
+    }
+
+    .product-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: #fff;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .product-image {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+    
+    .product-details {
+        padding: 1.5rem;
+    }
+    
+    .product-category {
+        font-size: 0.9rem;
+        color: var(--primary);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .product-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+    }
+    
+    .product-price {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #e74c3c;
+        margin-bottom: 0.5rem;
+    }
+    
+    .min-order {
+        font-size: 0.85rem;
+        color: var(--text-light);
+        margin-bottom: 1rem;
+    }
+    
+    .view-details-btn {
+        background: linear-gradient(135deg, #db4b4b, var(--primary-dark));
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        color: white;
+    }
+    
+    .view-details-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        opacity: 0.9;
+    }
+
+    .no-products {
+        background: #f8f9fa;
+        padding: 3rem;
+        border-radius: 15px;
+        text-align: center;
+    }
+    
+    .pagination .page-link {
+        border: none;
+        color: var(--text-dark);
+        margin: 0 3px;
+        border-radius: 5px;
+        padding: 0.5rem 1rem;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .search-and-categories {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-container {
+            width: 100%;
+        }
+
+        .categories-container {
+            justify-content: flex-start;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .category-tag {
+            white-space: nowrap;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Filters Section -->
+<div class="filters-section">
+    <div class="container">
+        <div class="search-and-categories">
+            <div class="search-container">
+                <form method="get" class="d-flex">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control search-box" 
+                               placeholder="Search fresh meat..." value="{{ search_query }}">
+                        <button class="btn search-btn" type="submit">
+                            <i class="fas fa-search text-white"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="categories-container">
+                <a href="{% url 'products:product_list' %}" 
+                   class="category-tag {% if not current_category %}active{% endif %}">
+                    All Meats
+                </a>
+                {% for category in categories %}
+                <a href="{% url 'products:product_list' %}?category={{ category.id }}" 
+                   class="category-tag {% if current_category == category.id|stringformat:'s' %}active{% endif %}">
+                    {{ category.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <!-- Product Grid -->
+    <div class="row g-4">
+        {% if products %}
+            {% for product in products %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card product-card">
+                    <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
+                    <div class="product-details">
+                        <div class="product-category">{{ product.category.name }}</div>
+                        <h5 class="product-title">{{ product.name }}</h5>
+                        <div class="product-price">₹{{ product.price_per_kg }}/kg</div>
+                        <div class="min-order">
+                            <i class="fas fa-box"></i> Min. Order: {{ product.minimum_order_quantity }}kg
+                        </div>
+                        <a href="{% url 'products:product_detail' product.id %}" 
+                           class="btn view-details-btn w-100">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="no-products">
+                    <i class="fas fa-search mb-3" style="font-size: 3rem; color: var(--primary);"></i>
+                    <h4>No products found</h4>
+                    <p class="text-muted">Try adjusting your search or filter to find what you're looking for.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if products.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if products.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ products.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in products.paginator.page_range %}
+            <li class="page-item {% if products.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% if current_category %}&category={{ current_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if products.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ products.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

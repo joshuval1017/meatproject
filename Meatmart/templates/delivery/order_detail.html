@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order #{{ order.order_number }} - MEATMART{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #35e341;
+        --secondary-color: #0c0707;
+        --accent-color: #f8f9fa;
+        --text-color: #2c3e50;
+        --heading-font: 'Playfair Display', serif;
+        --body-font: 'Poppins', sans-serif;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #35e341 0%, #28a745 100%);
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        color: white;
+        border-radius: 0 0 25px 25px;
+    }
+
+    .welcome-text {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .order-card {
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        background: white;
+        margin-bottom: 1.5rem;
+    }
+
+    .order-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1.5rem;
+        border-radius: 15px 15px 0 0;
+        border-bottom: 2px solid var(--accent-color);
+    }
+
+    .order-body {
+        padding: 1.5rem;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .status-delivered {
+        background-color: rgba(53, 227, 65, 0.1);
+        color: #28a745;
+    }
+
+    .customer-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .customer-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: #6c757d;
+    }
+
+    .delivery-details {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+    }
+
+    .delivery-details i {
+        color: #6c757d;
+        width: 20px;
+    }
+
+    .order-items {
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #e9ecef;
+    }
+
+    .order-item {
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .order-item:last-child {
+        border-bottom: none;
+    }
+
+    .item-image {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+
+    .earnings-badge {
+        background-color: rgba(53, 227, 65, 0.1);
+        color: #28a745;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 500;
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e9ecef;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -2rem;
+        top: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        border: 2px solid white;
+    }
+
+    .timeline-item:last-child {
+        padding-bottom: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="welcome-text">Order #{{ order.order_number }}</h1>
+                <p class="mb-0 text-white-50">Order Details</p>
+            </div>
+            <span class="earnings-badge">
+                <i class="fas fa-rupee-sign"></i> 50
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Order Details -->
+        <div class="col-lg-8">
+            <!-- Customer Info -->
+            <div class="order-card">
+                <div class="order-header">
+                    <h5 class="mb-0">Customer Information</h5>
+                </div>
+                <div class="order-body">
+                    <div class="customer-info">
+                        <div class="customer-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">{{ order.user.get_full_name }}</h6>
+                            <small class="text-muted">Customer</small>
+                        </div>
+                    </div>
+
+                    <div class="delivery-details">
+                        <p class="mb-2">
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ order.delivery_address.address_line1 }}
+                            {% if order.delivery_address.address_line2 %}, {{ order.delivery_address.address_line2 }}{% endif %}
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-city"></i>
+                            {{ order.delivery_address.city }}, {{ order.delivery_address.state }} - {{ order.delivery_address.pincode }}
+                        </p>
+                        <p class="mb-0">
+                            <i class="fas fa-phone"></i>
+                            {{ order.delivery_address.phone }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="order-card">
+                <div class="order-header">
+                    <h5 class="mb-0">Order Items</h5>
+                </div>
+                <div class="order-body">
+                    <div class="order-items">
+                        {% for item in order.items.all %}
+                            <div class="order-item">
+                                <div class="d-flex align-items-center">
+                                    {% if item.product.image %}
+                                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="item-image me-3">
+                                    {% else %}
+                                        <div class="item-image bg-light d-flex align-items-center justify-content-center me-3">
+                                            <i class="fas fa-image text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb-1">{{ item.product.name }}</h6>
+                                        <p class="mb-0 text-muted">
+                                            {{ item.quantity }} kg × ₹{{ item.price_per_kg }}
+                                        </p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <span class="fw-bold">₹{{ item.total }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Timeline -->
+        <div class="col-lg-4">
+            <div class="order-card">
+                <div class="order-header">
+                    <h5 class="mb-0">Delivery Timeline</h5>
+                </div>
+                <div class="order-body">
+                    <div class="timeline">
+                        {% if order.delivered_at %}
+                            <div class="timeline-item">
+                                <h6 class="mb-1">Delivered</h6>
+                                <p class="mb-0 text-muted">{{ order.delivered_at|date:"M d, Y" }} at {{ order.delivered_at|time:"h:i A" }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        {% if order.out_for_delivery_at %}
+                            <div class="timeline-item">
+                                <h6 class="mb-1">Out for Delivery</h6>
+                                <p class="mb-0 text-muted">{{ order.out_for_delivery_at|date:"M d, Y" }} at {{ order.out_for_delivery_at|time:"h:i A" }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        {% if order.accepted_at %}
+                            <div class="timeline-item">
+                                <h6 class="mb-1">Accepted</h6>
+                                <p class="mb-0 text-muted">{{ order.accepted_at|date:"M d, Y" }} at {{ order.accepted_at|time:"h:i A" }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        {% if order.assigned_at %}
+                            <div class="timeline-item">
+                                <h6 class="mb-1">Assigned</h6>
+                                <p class="mb-0 text-muted">{{ order.assigned_at|date:"M d, Y" }} at {{ order.assigned_at|time:"h:i A" }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="timeline-item">
+                            <h6 class="mb-1">Order Placed</h6>
+                            <p class="mb-0 text-muted">{{ order.created_at|date:"M d, Y" }} at {{ order.created_at|time:"h:i A" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

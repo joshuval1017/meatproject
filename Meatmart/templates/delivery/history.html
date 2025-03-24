@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delivery History - MEATMART{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #35e341;
+        --secondary-color: #0c0707;
+        --accent-color: #f8f9fa;
+        --text-color: #2c3e50;
+        --heading-font: 'Playfair Display', serif;
+        --body-font: 'Poppins', sans-serif;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #35e341 0%, #28a745 100%);
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        color: white;
+        border-radius: 0 0 25px 25px;
+    }
+
+    .welcome-text {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .order-card {
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        background: white;
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .order-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .order-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1rem 1.5rem;
+        border-radius: 15px 15px 0 0;
+        border-bottom: 2px solid var(--accent-color);
+    }
+
+    .order-body {
+        padding: 1.5rem;
+    }
+
+    .order-footer {
+        padding: 1rem 1.5rem;
+        background: #f8f9fa;
+        border-radius: 0 0 15px 15px;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .status-delivered {
+        background-color: rgba(53, 227, 65, 0.1);
+        color: #28a745;
+    }
+
+    .earnings-badge {
+        background-color: rgba(53, 227, 65, 0.1);
+        color: #28a745;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 500;
+    }
+
+    .customer-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .customer-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: #6c757d;
+    }
+
+    .delivery-details {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+    }
+
+    .delivery-details i {
+        color: #6c757d;
+        width: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <h1 class="welcome-text">Delivery History</h1>
+        <p class="mb-0 text-white-50">View your completed deliveries</p>
+    </div>
+</div>
+
+<div class="container">
+    {% if orders %}
+        {% for order in orders %}
+            <div class="order-card">
+                <div class="order-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">Order #{{ order.order_number }}</h5>
+                        <small class="text-muted">Delivered on {{ order.delivered_at|date:"M d, Y" }} at {{ order.delivered_at|time:"h:i A" }}</small>
+                    </div>
+                    <span class="earnings-badge">
+                        <i class="fas fa-rupee-sign"></i> 50
+                    </span>
+                </div>
+                
+                <div class="order-body">
+                    <div class="customer-info">
+                        <div class="customer-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">{{ order.user.get_full_name }}</h6>
+                            <small class="text-muted">Customer</small>
+                        </div>
+                    </div>
+
+                    <div class="delivery-details">
+                        <p class="mb-2">
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ order.delivery_address.address_line1 }}
+                            {% if order.delivery_address.address_line2 %}, {{ order.delivery_address.address_line2 }}{% endif %}
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-city"></i>
+                            {{ order.delivery_address.city }}, {{ order.delivery_address.state }} - {{ order.delivery_address.pincode }}
+                        </p>
+                        <p class="mb-0">
+                            <i class="fas fa-phone"></i>
+                            {{ order.delivery_address.phone }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="order-footer d-flex justify-content-between align-items-center">
+                    <span class="status-badge status-delivered">
+                        <i class="fas fa-check-circle me-1"></i>Delivered
+                    </span>
+                    <a href="{% url 'delivery:order_detail' order.id %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-eye me-1"></i>View Details
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-history fa-3x text-muted mb-3"></i>
+            <h4>No Delivery History</h4>
+            <p class="text-muted">You haven't completed any deliveries yet.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

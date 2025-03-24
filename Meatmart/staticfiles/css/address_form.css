@@ -1,0 +1,132 @@
+.address-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.profile-sidebar {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.profile-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border: 2px solid #6152e4;
+    padding: 2px;
+}
+
+.nav-pills .nav-link {
+    color: #495057;
+    padding: 0.8rem 1rem;
+    margin: 0.2rem 0;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: #f8f9fa;
+    color: #6152e4;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #6152e4;
+    color: white;
+}
+
+.nav-pills .nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+.address-form-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.address-form-header {
+    background: linear-gradient(135deg, #6152e4 0%, #4a3fd5 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 10px 10px 0 0;
+}
+
+.address-form-header h4 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0.8rem;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: #6152e4;
+    box-shadow: 0 0 0 0.2rem rgba(97, 82, 228, 0.25);
+}
+
+.form-control::placeholder {
+    color: #adb5bd;
+}
+
+.required-field::after {
+    content: "*";
+    color: #dc3545;
+    margin-left: 4px;
+}
+
+.btn-submit-address {
+    background: #6152e4;
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-submit-address:hover {
+    background: #4a3fd5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(97, 82, 228, 0.2);
+}
+
+.btn-cancel {
+    background: #f8f9fa;
+    color: #495057;
+    border: 2px solid #e9ecef;
+    padding: 0.8rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    margin-right: 1rem;
+}
+
+.btn-cancel:hover {
+    background: #e9ecef;
+    color: #212529;
+}
+
+.alert {
+    border-radius: 8px;
+    border: none;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.alert-danger {
+    background-color: #fff5f5;
+    color: #dc3545;
+    border-left: 4px solid #dc3545;
+}

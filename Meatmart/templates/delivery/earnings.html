@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Earnings - MEATMART{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #35e341;
+        --secondary-color: #0c0707;
+        --accent-color: #f8f9fa;
+        --text-color: #2c3e50;
+        --heading-font: 'Playfair Display', serif;
+        --body-font: 'Poppins', sans-serif;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #35e341 0%, #28a745 100%);
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        color: white;
+        border-radius: 0 0 25px 25px;
+    }
+
+    .welcome-text {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .earnings-card {
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        background: white;
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+        overflow: hidden;
+    }
+
+    .earnings-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .earnings-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1.5rem;
+        border-bottom: 2px solid var(--accent-color);
+    }
+
+    .earnings-body {
+        padding: 1.5rem;
+    }
+
+    .earnings-amount {
+        font-size: 2.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .earnings-label {
+        color: #6c757d;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .earnings-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba(53, 227, 65, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 1rem;
+    }
+
+    .earnings-stat {
+        padding: 1rem;
+        border-radius: 10px;
+        background: #f8f9fa;
+        margin-bottom: 1rem;
+    }
+
+    .earnings-stat-label {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+    }
+
+    .earnings-stat-value {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <h1 class="welcome-text">My Earnings</h1>
+        <p class="mb-0 text-white-50">Track your delivery earnings</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Today's Earnings -->
+        <div class="col-md-4">
+            <div class="earnings-card">
+                <div class="earnings-header">
+                    <div class="earnings-icon">
+                        <i class="fas fa-sun"></i>
+                    </div>
+                    <h5>Today's Earnings</h5>
+                </div>
+                <div class="earnings-body">
+                    <div class="earnings-amount">
+                        <i class="fas fa-rupee-sign"></i> {{ today }}
+                    </div>
+                    <div class="earnings-label">Today</div>
+                    <div class="info-text">
+                        <i class="fas fa-info-circle me-1"></i>
+                        {{ total_deliveries.today }} deliveries completed today
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Earnings -->
+        <div class="col-md-4">
+            <div class="earnings-card">
+                <div class="earnings-header">
+                    <div class="earnings-icon">
+                        <i class="fas fa-calendar-week"></i>
+                    </div>
+                    <h5>Weekly Earnings</h5>
+                </div>
+                <div class="earnings-body">
+                    <div class="earnings-amount">
+                        <i class="fas fa-rupee-sign"></i> {{ week }}
+                    </div>
+                    <div class="earnings-label">This Week</div>
+                    <div class="info-text">
+                        <i class="fas fa-info-circle me-1"></i>
+                        {{ total_deliveries.week }} deliveries this week
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Earnings -->
+        <div class="col-md-4">
+            <div class="earnings-card">
+                <div class="earnings-header">
+                    <div class="earnings-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h5>Monthly Earnings</h5>
+                </div>
+                <div class="earnings-body">
+                    <div class="earnings-amount">
+                        <i class="fas fa-rupee-sign"></i> {{ month }}
+                    </div>
+                    <div class="earnings-label">This Month</div>
+                    <div class="info-text">
+                        <i class="fas fa-info-circle me-1"></i>
+                        {{ total_deliveries.month }} deliveries this month
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Earnings Info -->
+    <div class="earnings-card mt-4">
+        <div class="earnings-header">
+            <h5 class="mb-0">Earnings Information</h5>
+        </div>
+        <div class="earnings-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        You earn <strong>₹50</strong> for each successful delivery completed.
+                    </div>
+                    <p class="mb-0">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Earnings are calculated based on your completed deliveries.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

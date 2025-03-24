@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delivery Boys - Seller Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Delivery Boys</h1>
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Filter by Status
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item {% if not status %}active{% endif %}" href="{% url 'seller:delivery_boys' %}">All</a></li>
+                <li><a class="dropdown-item {% if status == 'available' %}active{% endif %}" href="{% url 'seller:delivery_boys' %}?status=available">Available</a></li>
+                <li><a class="dropdown-item {% if status == 'busy' %}active{% endif %}" href="{% url 'seller:delivery_boys' %}?status=busy">Busy</a></li>
+                <li><a class="dropdown-item {% if status == 'offline' %}active{% endif %}" href="{% url 'seller:delivery_boys' %}?status=offline">Offline</a></li>
+                <li><a class="dropdown-item {% if status == 'break' %}active{% endif %}" href="{% url 'seller:delivery_boys' %}?status=break">On Break</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for delivery_boy in delivery_boys %}
+        <div class="col-md-4 col-lg-3 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-shrink-0">
+                            {% if delivery_boy.profile_picture %}
+                            <img src="{{ delivery_boy.profile_picture.url }}" alt="{{ delivery_boy.get_full_name }}" class="rounded-circle" width="50" height="50">
+                            {% else %}
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white" style="width: 50px; height: 50px;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title mb-0">{{ delivery_boy.get_full_name }}</h5>
+                            <p class="card-text text-muted small mb-0">ID: {{ delivery_boy.id }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <span class="badge {% if delivery_boy.delivery_profile.status == 'AVAILABLE' %}bg-success
+                                         {% elif delivery_boy.delivery_profile.status == 'BUSY' %}bg-warning
+                                         {% elif delivery_boy.delivery_profile.status == 'BREAK' %}bg-info
+                                         {% else %}bg-secondary{% endif %} mb-2">
+                            {{ delivery_boy.delivery_profile.get_status_display }}
+                        </span>
+                        {% if delivery_boy.delivery_profile.current_location %}
+                        <p class="card-text small mb-1">
+                            <i class="fas fa-map-marker-alt me-1"></i>
+                            {{ delivery_boy.delivery_profile.current_location }}
+                        </p>
+                        {% endif %}
+                        <p class="card-text small mb-0">
+                            <i class="fas fa-phone me-1"></i>
+                            {{ delivery_boy.delivery_profile.phone_number }}
+                        </p>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="card-text small mb-0">
+                                <i class="fas fa-star text-warning me-1"></i>
+                                {{ delivery_boy.delivery_profile.rating|default:"N/A" }}
+                            </p>
+                            <p class="card-text small mb-0">
+                                <i class="fas fa-route me-1"></i>
+                                {{ delivery_boy.delivery_profile.total_deliveries }} deliveries
+                            </p>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewDeliveryBoyDetails('{{ delivery_boy.id }}')">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                No delivery boys found.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if delivery_boys.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if delivery_boys.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ delivery_boys.previous_page_number }}{% if status %}&status={{ status }}{% endif %}">&laquo;</a>
+            </li>
+            {% endif %}
+
+            {% for i in delivery_boys.paginator.page_range %}
+            <li class="page-item {% if delivery_boys.number == i %}active{% endif %}">
+                <a class="page-link" href="?page={{ i }}{% if status %}&status={{ status }}{% endif %}">{{ i }}</a>
+            </li>
+            {% endfor %}
+
+            {% if delivery_boys.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ delivery_boys.next_page_number }}{% if status %}&status={{ status }}{% endif %}">&raquo;</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Delivery Boy Details Modal -->
+<div class="modal fade" id="deliveryBoyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delivery Boy Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="deliveryBoyDetails">
+                Loading...
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function viewDeliveryBoyDetails(deliveryBoyId) {
+    const modal = new bootstrap.Modal(document.getElementById('deliveryBoyModal'));
+    const detailsContainer = document.getElementById('deliveryBoyDetails');
+    
+    // Show modal with loading state
+    modal.show();
+    detailsContainer.innerHTML = 'Loading...';
+    
+    // Fetch delivery boy details
+    fetch(`/seller/delivery-boys/${deliveryBoyId}/details/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                detailsContainer.innerHTML = `
+                    <div class="text-center mb-3">
+                        ${data.profile_picture ? 
+                            `<img src="${data.profile_picture}" alt="${data.name}" class="rounded-circle mb-2" width="100" height="100">` :
+                            `<div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white mx-auto mb-2" style="width: 100px; height: 100px;">
+                                <i class="fas fa-user fa-2x"></i>
+                            </div>`
+                        }
+                        <h4>${data.name}</h4>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <p class="mb-1"><strong>Rating:</strong></p>
+                            <p class="text-warning">
+                                <i class="fas fa-star"></i> ${data.rating || 'N/A'}
+                            </p>
+                        </div>
+                        <div class="col-6">
+                            <p class="mb-1"><strong>Total Deliveries:</strong></p>
+                            <p>${data.total_deliveries}</p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <p class="mb-1"><strong>Contact:</strong></p>
+                        <p class="mb-1"><i class="fas fa-phone me-2"></i>${data.phone_number}</p>
+                        <p class="mb-1"><i class="fas fa-envelope me-2"></i>${data.email}</p>
+                    </div>
+                    <div class="mb-3">
+                        <p class="mb-1"><strong>Current Location:</strong></p>
+                        <p><i class="fas fa-map-marker-alt me-2"></i>${data.current_location || 'Not available'}</p>
+                    </div>
+                    <div>
+                        <p class="mb-1"><strong>Recent Deliveries:</strong></p>
+                        <ul class="list-unstyled">
+                            ${data.recent_deliveries.map(delivery => `
+                                <li class="mb-2">
+                                    <small class="text-muted">${delivery.date}</small><br>
+                                    Order #${delivery.order_id} - ${delivery.status}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else {
+                detailsContainer.innerHTML = '<div class="alert alert-danger">Failed to load delivery boy details.</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            detailsContainer.innerHTML = '<div class="alert alert-danger">Failed to load delivery boy details.</div>';
+        });
+}
+</script>
+{% endblock %}
+{% endblock %}

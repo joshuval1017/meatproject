@@ -1,0 +1,797 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Products Management - MEATMART{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --primary-light: #FFE0E0;
+        --secondary-light: #E8F5E9;
+        --accent-light: #E3F2FD;
+        --success-light: #F1F8E9;
+        --warning-light: #FFF3E0;
+        --font-heading: 'Playfair Display', serif;
+        --font-body: 'Poppins', sans-serif;
+    }
+
+    body {
+        font-family: var(--font-body);
+        background-color: #f8f9fa;
+    }
+
+    .products-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-title {
+        font-family: var(--font-heading);
+        font-size: 2.5rem;
+        color: #1a237e;
+        margin: 2rem 0;
+        text-align: center;
+        background: linear-gradient(45deg, #1a237e, #3949ab);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .search-box {
+        flex: 1;
+        max-width: 300px;
+        margin-right: 1rem;
+    }
+
+    .search-box input {
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+        padding: 0.75rem;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .search-box input:focus {
+        border-color: #1a237e;
+        box-shadow: 0 0 0 0.2rem rgba(26, 35, 126, 0.1);
+    }
+
+    .btn-add-product {
+        background: linear-gradient(45deg, #1a237e, #3949ab);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-add-product:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .product-content {
+        padding: 1.5rem;
+    }
+
+    .product-title {
+        font-weight: 600;
+        color: #1a237e;
+        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+    }
+
+    .product-description {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 1rem;
+    }
+
+    .product-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .detail {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .label {
+        font-weight: 500;
+        color: #1a237e;
+    }
+
+    .value {
+        font-weight: 400;
+        color: #666;
+    }
+
+    .product-price {
+        font-weight: 600;
+        color: #2e7d32;
+    }
+
+    .product-stock {
+        font-weight: 400;
+        color: #666;
+    }
+
+    .product-category {
+        font-weight: 400;
+        color: #666;
+    }
+
+    .product-seller {
+        font-weight: 400;
+        color: #666;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .status-badge.badge-success {
+        background-color: var(--success-light);
+        color: #2e7d32;
+    }
+
+    .status-badge.badge-danger {
+        background-color: var(--primary-light);
+        color: #d32f2f;
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 0.5rem;
+        border: none;
+        border-radius: 8px;
+        color: #1a237e;
+        background: #f5f5f5;
+        transition: all 0.3s ease;
+    }
+
+    .action-btn:hover {
+        background: var(--accent-light);
+    }
+
+    .modal-content {
+        border-radius: 20px;
+        border: none;
+    }
+
+    .modal-header {
+        background: linear-gradient(45deg, #1a237e, #3949ab);
+        color: white;
+        border-radius: 20px 20px 0 0;
+        padding: 1.5rem;
+    }
+
+    .modal-title {
+        font-family: var(--font-heading);
+        font-size: 1.5rem;
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .form-label {
+        color: #1a237e;
+        font-weight: 500;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        padding: 0.75rem;
+        border: 1px solid #e0e0e0;
+    }
+
+    .form-control:focus {
+        border-color: #1a237e;
+        box-shadow: 0 0 0 0.2rem rgba(26, 35, 126, 0.1);
+    }
+
+    .btn-modal {
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-modal.primary {
+        background: linear-gradient(45deg, #1a237e, #3949ab);
+        color: white;
+        border: none;
+    }
+
+    .btn-modal.secondary {
+        background: #f5f5f5;
+        color: #666;
+        border: none;
+    }
+
+    .pagination {
+        margin-top: 2rem;
+    }
+
+    .page-link {
+        color: #1a237e;
+        border: none;
+        padding: 0.75rem 1rem;
+        margin: 0 0.25rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .page-link:hover {
+        background-color: var(--primary-light);
+        color: #1a237e;
+        transform: translateY(-2px);
+    }
+
+    .page-item.active .page-link {
+        background: linear-gradient(45deg, #1a237e, #3949ab);
+        border: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="products-container">
+    <h1 class="page-title">Products Management</h1>
+
+    <div class="action-bar">
+        <div class="search-box">
+            <input type="text" placeholder="Search products..." id="searchProducts">
+        </div>
+        <button class="btn-add-product" data-bs-toggle="modal" data-bs-target="#addProductModal">
+            <i class="fas fa-plus"></i>
+            Add New Product
+        </button>
+    </div>
+
+    <div class="products-grid">
+        {% for product in products %}
+        <div class="product-card" data-product-id="{{ product.id }}">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+            <div class="product-content">
+                <h3 class="product-title product-name">{{ product.name }}</h3>
+                <p class="product-description">{{ product.description }}</p>
+                <div class="product-details">
+                    <div class="detail">
+                        <span class="label">Price:</span>
+                        <span class="value product-price">₹{{ product.price_per_kg }}/kg</span>
+                    </div>
+                    <div class="detail">
+                        <span class="label">Stock:</span>
+                        <span class="value product-stock">{{ product.stock_quantity }} kg</span>
+                    </div>
+                    <div class="detail">
+                        <span class="label">Category:</span>
+                        <span class="value product-category">{{ product.category.name }}</span>
+                    </div>
+                    <div class="detail">
+                        <span class="label">Seller:</span>
+                        <span class="value product-seller">{{ product.seller.get_full_name|default:product.seller.email }}</span>
+                    </div>
+                    <div class="detail">
+                        <span class="label">Status:</span>
+                        <span class="badge {% if product.is_available %}badge-success{% else %}badge-danger{% endif %} status-badge">
+                            {% if product.is_available %}Available{% else %}Unavailable{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="product-actions">
+                    {% if not product.is_approved %}
+                    <button class="action-btn" onclick="approveProduct('{{ product.id }}', '{{ product.name }}')">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="action-btn" onclick="showRejectModal('{{ product.id }}', '{{ product.name }}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    {% endif %}
+                    <button class="action-btn" onclick="editProduct('{{ product.id }}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-5">
+            <p class="text-muted">No products found</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if products.has_other_pages %}
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if products.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ products.previous_page_number }}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in products.paginator.page_range %}
+            <li class="page-item {% if products.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+
+            {% if products.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ products.next_page_number }}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Product</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'admin_dashboard:products' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Seller</label>
+                        <select class="form-select" name="seller" required>
+                            <option value="">Select Seller</option>
+                            {% for seller in sellers %}
+                            <option value="{{ seller.id }}">{{ seller.get_full_name|default:seller.email }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="category" required>
+                            <option value="">Select Category</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Price per KG</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" name="price_per_kg" step="0.01" min="0" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Stock Quantity (KG)</label>
+                                <input type="number" class="form-control" name="stock_quantity" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Product Image</label>
+                        <input type="file" class="form-control" name="image" accept="image/*" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn-modal primary">Add Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Product Modal -->
+<div class="modal fade" id="editProductModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Product</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editProductForm" onsubmit="return updateProduct(event)">
+                {% csrf_token %}
+                <input type="hidden" id="editProductId" name="product_id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" class="form-control" name="name" id="editName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" id="editDescription" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Seller</label>
+                        <select class="form-select" name="seller" id="editSeller" required>
+                            <option value="">Select Seller</option>
+                            {% for seller in sellers %}
+                            <option value="{{ seller.id }}">{{ seller.get_full_name|default:seller.email }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="category" id="editCategory" required>
+                            <option value="">Select Category</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Price per KG</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" name="price_per_kg" id="editPricePerKg" step="0.01" min="0" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Stock Quantity (KG)</label>
+                                <input type="number" class="form-control" name="stock_quantity" id="editStockQuantity" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Product Image</label>
+                        <input type="file" class="form-control" name="image" id="editImage" accept="image/*">
+                        <small class="text-muted">Leave empty to keep current image</small>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="is_available" id="editIsAvailable">
+                            <label class="form-check-label">Available for Purchase</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn-modal primary">Update Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Product Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reject Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form onsubmit="return rejectProduct(this)">
+                <div class="modal-body">
+                    <input type="hidden" id="rejectProductId">
+                    <p>Are you sure you want to reject "<span id="rejectProductName"></span>"?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Reason for Rejection</label>
+                        <textarea class="form-control" name="reason" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Reject Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function approveProduct(productId, productName) {
+    if (confirm(`Are you sure you want to approve "${productName}"?`)) {
+        const csrftoken = getCookie('csrftoken');
+        fetch(`/admin_dashboard/products/${productId}/approve/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                location.reload();
+            } else {
+                alert(data.message || 'Failed to approve product');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to approve product. Please try again.');
+        });
+    }
+}
+
+function showRejectModal(productId, productName) {
+    document.getElementById('rejectProductId').value = productId;
+    document.getElementById('rejectProductName').textContent = productName;
+    
+    const modal = new bootstrap.Modal(document.getElementById('rejectModal'));
+    modal.show();
+}
+
+function rejectProduct(form) {
+    event.preventDefault();
+    
+    const productId = document.getElementById('rejectProductId').value;
+    const reason = form.querySelector('textarea[name="reason"]').value.trim();
+    
+    if (!reason) {
+        alert('Please provide a reason for rejection');
+        return false;
+    }
+    
+    const csrftoken = getCookie('csrftoken');
+    fetch(`/admin_dashboard/products/${productId}/reject/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({ reason: reason })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('rejectModal'));
+            modal.hide();
+            location.reload();
+        } else {
+            alert(data.message || 'Failed to reject product');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to reject product. Please try again.');
+    });
+    
+    return false;
+}
+
+function editProduct(productId) {
+    // Fetch product details
+    fetch(`/admin_dashboard/products/${productId}/edit/`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch product details');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                const product = data.product;
+                
+                // Fill the form with product details
+                document.getElementById('editProductId').value = product.id;
+                document.getElementById('editName').value = product.name;
+                document.getElementById('editDescription').value = product.description;
+                document.getElementById('editSeller').value = product.seller_id;
+                document.getElementById('editCategory').value = product.category_id;
+                document.getElementById('editPricePerKg').value = product.price_per_kg;
+                document.getElementById('editStockQuantity').value = product.stock_quantity;
+                document.getElementById('editIsAvailable').checked = product.is_available;
+                
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
+                modal.show();
+            } else {
+                showToast('error', data.message || 'Failed to fetch product details');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', 'Failed to fetch product details');
+        });
+}
+
+function updateProduct(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const productId = document.getElementById('editProductId').value;
+    const formData = new FormData(form);
+    
+    // If no new image is selected, remove the image field
+    if (!formData.get('image').size) {
+        formData.delete('image');
+    }
+    
+    const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+    fetch(`/admin_dashboard/products/${productId}/edit/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken
+        },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.message || 'Failed to update product');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            // Close the modal
+            bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+            
+            // Update the product card in the UI
+            updateProductCard(data.product);
+            
+            showToast('success', data.message);
+        } else {
+            showToast('error', data.message || 'Failed to update product');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', error.message || 'Failed to update product');
+    });
+    
+    return false;
+}
+
+function updateProductCard(product) {
+    const card = document.querySelector(`[data-product-id="${product.id}"]`);
+    if (card) {
+        // Update product details in the card
+        const titleElement = card.querySelector('.product-name');
+        const descriptionElement = card.querySelector('.product-description');
+        const priceElement = card.querySelector('.product-price');
+        const stockElement = card.querySelector('.product-stock');
+        const categoryElement = card.querySelector('.product-category');
+        const sellerElement = card.querySelector('.product-seller');
+        const imageElement = card.querySelector('.product-image');
+        const statusElement = card.querySelector('.status-badge');
+
+        if (titleElement) titleElement.textContent = product.name;
+        if (descriptionElement) descriptionElement.textContent = product.description;
+        if (priceElement) priceElement.textContent = `₹${product.price_per_kg}/kg`;
+        if (stockElement) stockElement.textContent = `${product.stock_quantity} kg`;
+        if (categoryElement) categoryElement.textContent = product.category.name;
+        if (sellerElement) sellerElement.textContent = product.seller.name;
+        
+        // Update product image if provided
+        if (imageElement && product.image_url) {
+            imageElement.src = product.image_url;
+        }
+        
+        // Update availability status
+        if (statusElement) {
+            statusElement.textContent = product.is_available ? 'Available' : 'Unavailable';
+            if (product.is_available) {
+                statusElement.classList.remove('badge-danger');
+                statusElement.classList.add('badge-success');
+            } else {
+                statusElement.classList.remove('badge-success');
+                statusElement.classList.add('badge-danger');
+            }
+        }
+    }
+}
+
+function showToast(type, message) {
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0 position-fixed bottom-0 end-0 m-3`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    toast.addEventListener('hidden.bs.toast', () => toast.remove());
+}
+
+function viewProduct(productId) {
+    // Implement view product functionality
+    alert('View product details - To be implemented');
+}
+</script>
+{% endblock %}

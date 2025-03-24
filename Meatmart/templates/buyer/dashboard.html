@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Dashboard - MEATMART{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #35e341;
+        --secondary-color: #0c0707;
+        --accent-color: #f8f9fa;
+        --text-color: #2c3e50;
+        --heading-font: 'Playfair Display', serif;
+        --body-font: 'Poppins', sans-serif;
+    }
+
+    body {
+        font-family: var(--body-font);
+        color: var(--text-color);
+        background-color: var(--accent-color);
+    }
+
+    .dashboard-header {
+        background: linear-gradient(135deg, #35e341 0%, #28a745 100%);
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        color: white;
+        border-radius: 0 0 25px 25px;
+    }
+
+    .welcome-text {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .order-card {
+        background: white;
+        border-radius: 15px;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+    }
+
+    .order-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .status-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .address-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+    }
+
+    .address-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .quick-action-btn {
+        background: white;
+        border: none;
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .quick-action-btn:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    .quick-action-btn i {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="welcome-text">Welcome back, {{ user.first_name }}!</h1>
+                <p class="mb-0 text-white-50">Here's what's happening with your account today</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="{% url 'shop:products' %}" class="btn btn-light">
+                    <i class="fas fa-shopping-cart me-2"></i>Shop Now
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Quick Stats -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="stat-value">{{ total_orders }}</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="stat-value">{{ pending_orders }}</div>
+                <div class="stat-label">Pending Orders</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-info bg-opacity-10 text-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="stat-value">{{ total_addresses }}</div>
+                <div class="stat-label">Saved Addresses</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-value">{{ total_reviews }}</div>
+                <div class="stat-label">Reviews Given</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions mb-5">
+        <a href="{% url 'buyer:order_list' %}" class="quick-action-btn text-decoration-none">
+            <i class="fas fa-shopping-bag d-block"></i>
+            <span>My Orders</span>
+        </a>
+        <a href="{% url 'buyer:addresses' %}" class="quick-action-btn text-decoration-none">
+            <i class="fas fa-map-marker-alt d-block"></i>
+            <span>Addresses</span>
+        </a>
+        <a href="{% url 'account_email' %}" class="quick-action-btn text-decoration-none">
+            <i class="fas fa-envelope d-block"></i>
+            <span>Email Settings</span>
+        </a>
+        <a href="{% url 'account_change_password' %}" class="quick-action-btn text-decoration-none">
+            <i class="fas fa-lock d-block"></i>
+            <span>Password</span>
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Recent Orders -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Recent Orders</h5>
+                        <a href="{% url 'buyer:order_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if recent_orders %}
+                        {% for order in recent_orders %}
+                            <div class="order-card p-3 mb-3">
+                                <div class="row align-items-center">
+                                    <div class="col-md-3">
+                                        <p class="mb-1 text-muted small">Order #</p>
+                                        <p class="mb-0 fw-bold">{{ order.order_number }}</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p class="mb-1 text-muted small">Date</p>
+                                        <p class="mb-0">{{ order.created_at|date:"M d, Y" }}</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p class="mb-1 text-muted small">Total</p>
+                                        <p class="mb-0">₹{{ order.total_amount }}</p>
+                                    </div>
+                                    <div class="col-md-3 text-md-end">
+                                        {% if order.status == 'PENDING' %}
+                                            <span class="status-badge bg-warning bg-opacity-10 text-warning">Pending</span>
+                                        {% elif order.status == 'CONFIRMED' %}
+                                            <span class="status-badge bg-info bg-opacity-10 text-info">Confirmed</span>
+                                        {% elif order.status == 'PROCESSING' %}
+                                            <span class="status-badge bg-primary bg-opacity-10 text-primary">Processing</span>
+                                        {% elif order.status == 'OUT_FOR_DELIVERY' %}
+                                            <span class="status-badge bg-info bg-opacity-10 text-info">Out for Delivery</span>
+                                        {% elif order.status == 'DELIVERED' %}
+                                            <span class="status-badge bg-success bg-opacity-10 text-success">Delivered</span>
+                                        {% elif order.status == 'CANCELLED' %}
+                                            <span class="status-badge bg-danger bg-opacity-10 text-danger">Cancelled</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <img src="{% static 'images/no-orders.svg' %}" alt="No Orders" class="mb-3" style="max-width: 150px;">
+                            <h5>No Orders Yet</h5>
+                            <p class="text-muted">Start shopping to place your first order!</p>
+                            <a href="{% url 'shop:products' %}" class="btn btn-primary">Shop Now</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Saved Addresses -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Saved Addresses</h5>
+                        <a href="{% url 'buyer:addresses' %}" class="btn btn-sm btn-outline-primary">Manage</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if addresses %}
+                        {% for address in addresses %}
+                            <div class="address-card mb-3">
+                                <h6 class="mb-2">{{ address.name }}</h6>
+                                <p class="mb-2 text-muted small">
+                                    {{ address.street_address }}<br>
+                                    {{ address.city }}, {{ address.state }} {{ address.pincode }}
+                                </p>
+                                <p class="mb-0 small">
+                                    <i class="fas fa-phone-alt me-2 text-muted"></i>{{ address.phone }}
+                                </p>
+                                {% if address.is_default %}
+                                    <span class="badge bg-success mt-2">Default Address</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <img src="{% static 'images/no-address.svg' %}" alt="No Address" class="mb-3" style="max-width: 150px;">
+                            <h5>No Addresses Added</h5>
+                            <p class="text-muted">Add your delivery addresses here</p>
+                            <a href="{% url 'buyer:add_address' %}" class="btn btn-primary">Add Address</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

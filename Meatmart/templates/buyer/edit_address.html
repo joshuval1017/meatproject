@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Address - MEATMART{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #35e341;
+        --secondary-color: #0c0707;
+        --accent-color: #f8f9fa;
+        --text-color: #2c3e50;
+        --heading-font: 'Playfair Display', serif;
+        --body-font: 'Poppins', sans-serif;
+    }
+
+    body {
+        font-family: var(--body-font);
+        color: var(--text-color);
+        background-color: var(--accent-color);
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #35e341 0%, #28a745 100%);
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        color: white;
+        border-radius: 0 0 25px 25px;
+    }
+
+    .welcome-text {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .main-content-card {
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        background: white;
+        margin-bottom: 2rem;
+    }
+
+    .card-header {
+        background: white;
+        border-bottom: 2px solid var(--accent-color);
+        padding: 1.5rem;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(53, 227, 65, 0.25);
+    }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+    }
+
+    .form-text {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .btn {
+        padding: 0.8rem 2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #35e341 0%, #28a745 100%);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        box-shadow: 0 4px 15px rgba(53, 227, 65, 0.3);
+    }
+
+    .btn-outline-secondary {
+        border: 1px solid #e0e0e0;
+        color: var(--text-color);
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: var(--accent-color);
+        border-color: #d0d0d0;
+        color: var(--text-color);
+    }
+
+    .alert {
+        border-radius: 10px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        border: none;
+    }
+
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <h1 class="welcome-text">{% if address %}Edit{% else %}Add New{% endif %} Address</h1>
+        <p class="mb-0 text-white-50">{% if address %}Update your delivery location{% else %}Add a new delivery location{% endif %}</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="main-content-card">
+                <div class="card-header">
+                    <h5 class="mb-0">Address Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Address Label*</label>
+                                    <input type="text" name="label" class="form-control" required
+                                           value="{{ address.label }}" placeholder="e.g., Home, Office">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Full Name*</label>
+                                    <input type="text" name="name" class="form-control" required
+                                           value="{{ address.name }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number*</label>
+                            <input type="tel" name="phone" class="form-control" required
+                                   value="{{ address.phone }}"
+                                   pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number">
+                            <div class="form-text">We'll use this number for delivery updates</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Address Line 1*</label>
+                            <input type="text" name="address_line1" class="form-control" required
+                                   value="{{ address.address_line1 }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Address Line 2</label>
+                            <input type="text" name="address_line2" class="form-control"
+                                   value="{{ address.address_line2|default:'' }}">
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">City*</label>
+                                    <input type="text" name="city" class="form-control" required
+                                           value="{{ address.city }}">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">State*</label>
+                                    <select name="state" class="form-control" required>
+                                        <option value="">Select State</option>
+                                        <option value="Andhra Pradesh" {% if address.state == 'Andhra Pradesh' %}selected{% endif %}>Andhra Pradesh</option>
+                                        <option value="Arunachal Pradesh" {% if address.state == 'Arunachal Pradesh' %}selected{% endif %}>Arunachal Pradesh</option>
+                                        <option value="Assam" {% if address.state == 'Assam' %}selected{% endif %}>Assam</option>
+                                        <option value="Bihar" {% if address.state == 'Bihar' %}selected{% endif %}>Bihar</option>
+                                        <option value="Chhattisgarh" {% if address.state == 'Chhattisgarh' %}selected{% endif %}>Chhattisgarh</option>
+                                        <option value="Goa" {% if address.state == 'Goa' %}selected{% endif %}>Goa</option>
+                                        <option value="Gujarat" {% if address.state == 'Gujarat' %}selected{% endif %}>Gujarat</option>
+                                        <option value="Haryana" {% if address.state == 'Haryana' %}selected{% endif %}>Haryana</option>
+                                        <option value="Himachal Pradesh" {% if address.state == 'Himachal Pradesh' %}selected{% endif %}>Himachal Pradesh</option>
+                                        <option value="Jharkhand" {% if address.state == 'Jharkhand' %}selected{% endif %}>Jharkhand</option>
+                                        <option value="Karnataka" {% if address.state == 'Karnataka' %}selected{% endif %}>Karnataka</option>
+                                        <option value="Kerala" {% if address.state == 'Kerala' %}selected{% endif %}>Kerala</option>
+                                        <option value="Madhya Pradesh" {% if address.state == 'Madhya Pradesh' %}selected{% endif %}>Madhya Pradesh</option>
+                                        <option value="Maharashtra" {% if address.state == 'Maharashtra' %}selected{% endif %}>Maharashtra</option>
+                                        <option value="Manipur" {% if address.state == 'Manipur' %}selected{% endif %}>Manipur</option>
+                                        <option value="Meghalaya" {% if address.state == 'Meghalaya' %}selected{% endif %}>Meghalaya</option>
+                                        <option value="Mizoram" {% if address.state == 'Mizoram' %}selected{% endif %}>Mizoram</option>
+                                        <option value="Nagaland" {% if address.state == 'Nagaland' %}selected{% endif %}>Nagaland</option>
+                                        <option value="Odisha" {% if address.state == 'Odisha' %}selected{% endif %}>Odisha</option>
+                                        <option value="Punjab" {% if address.state == 'Punjab' %}selected{% endif %}>Punjab</option>
+                                        <option value="Rajasthan" {% if address.state == 'Rajasthan' %}selected{% endif %}>Rajasthan</option>
+                                        <option value="Sikkim" {% if address.state == 'Sikkim' %}selected{% endif %}>Sikkim</option>
+                                        <option value="Tamil Nadu" {% if address.state == 'Tamil Nadu' %}selected{% endif %}>Tamil Nadu</option>
+                                        <option value="Telangana" {% if address.state == 'Telangana' %}selected{% endif %}>Telangana</option>
+                                        <option value="Tripura" {% if address.state == 'Tripura' %}selected{% endif %}>Tripura</option>
+                                        <option value="Uttar Pradesh" {% if address.state == 'Uttar Pradesh' %}selected{% endif %}>Uttar Pradesh</option>
+                                        <option value="Uttarakhand" {% if address.state == 'Uttarakhand' %}selected{% endif %}>Uttarakhand</option>
+                                        <option value="West Bengal" {% if address.state == 'West Bengal' %}selected{% endif %}>West Bengal</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">PIN Code*</label>
+                            <input type="text" name="pincode" class="form-control" required
+                                   value="{{ address.pincode }}"
+                                   pattern="[0-9]{6}" title="Please enter a valid 6-digit PIN code">
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input type="checkbox" name="is_default" class="form-check-input" id="isDefault"
+                                       {% if address.is_default %}checked{% endif %}>
+                                <label class="form-check-label" for="isDefault">
+                                    Make this my default address
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Address
+                            </button>
+                            <a href="{% url 'buyer:addresses' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

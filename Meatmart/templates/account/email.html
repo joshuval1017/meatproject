@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% load account %}
+
+{% block title %}Email Settings - MEATMART{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #35e341;
+        --secondary-color: #0c0707;
+        --accent-color: #f8f9fa;
+        --text-color: #2c3e50;
+        --heading-font: 'Playfair Display', serif;
+        --body-font: 'Poppins', sans-serif;
+    }
+
+    body {
+        font-family: var(--body-font);
+        color: var(--text-color);
+        background-color: var(--accent-color);
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #35e341 0%, #28a745 100%);
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        color: white;
+        border-radius: 0 0 25px 25px;
+    }
+
+    .welcome-text {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .main-content-card {
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        background: white;
+        margin-bottom: 2rem;
+    }
+
+    .card-header {
+        background: white;
+        border-bottom: 2px solid var(--accent-color);
+        padding: 1.5rem;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .email-card {
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        transition: transform 0.3s ease;
+        border: 1px solid #e0e0e0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .email-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .email-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .email-status {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(53, 227, 65, 0.25);
+    }
+
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-2px);
+    }
+
+    .add-email-section {
+        background-color: var(--accent-color);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .email-actions {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e0e0e0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <h1 class="welcome-text">Email Settings</h1>
+        <p class="mb-0 text-white-50">Manage your email addresses and preferences</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="main-content-card">
+        <div class="card-header">
+            <h5 class="mb-0">Email Addresses</h5>
+        </div>
+        <div class="card-body">
+            {% if user.emailaddress_set.all %}
+                <p class="text-muted mb-4">
+                    The following email addresses are associated with your account:
+                </p>
+                {% for emailaddress in user.emailaddress_set.all %}
+                    <div class="email-card">
+                        <div class="card-body">
+                            {% if emailaddress.verified %}
+                                <span class="email-status bg-success bg-opacity-10 text-success">
+                                    <i class="fas fa-check-circle me-1"></i>Verified
+                                </span>
+                            {% else %}
+                                <span class="email-status bg-warning bg-opacity-10 text-warning">
+                                    <i class="fas fa-exclamation-circle me-1"></i>Unverified
+                                </span>
+                            {% endif %}
+
+                            <h6 class="mb-2">{{ emailaddress.email }}</h6>
+                            <div class="email-actions">
+                                <form method="post" action="{% url 'account_email' %}" class="d-inline-block">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="email" value="{{ emailaddress.email }}"/>
+                                    {% if emailaddress.primary %}
+                                        <span class="badge bg-primary me-2">Primary Email</span>
+                                    {% else %}
+                                        <button class="btn btn-outline-primary btn-action me-2" name="action_primary">
+                                            Make Primary
+                                        </button>
+                                    {% endif %}
+                                    {% if emailaddress.verified %}
+                                        <button class="btn btn-outline-danger btn-action" name="action_remove">
+                                            Remove
+                                        </button>
+                                    {% else %}
+                                        <button class="btn btn-outline-warning btn-action me-2" name="action_send">
+                                            Re-send Verification
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-action" name="action_remove">
+                                            Remove
+                                        </button>
+                                    {% endif %}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <div class="add-email-section">
+                    <h6 class="mb-3">Add Email Address</h6>
+                    <form method="post" action="{% url 'account_email' %}" class="add_email">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <input type="email" name="email" class="form-control" placeholder="Enter new email address">
+                            </div>
+                            <div class="col-md-4">
+                                <button name="action_add" class="btn btn-primary w-100" type="submit">
+                                    <i class="fas fa-plus me-2"></i>Add Email
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <img src="{% static 'images/no-email.svg' %}" alt="No Email" class="mb-3" style="max-width: 200px;">
+                    <h5>No Email Addresses</h5>
+                    <p class="text-muted">Add your first email address to get started</p>
+                    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addEmailForm">
+                        <i class="fas fa-plus me-2"></i>Add Email Address
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript">
+(function() {
+    var message = "{% trans 'Do you really want to remove the selected e-mail address?' %}";
+    var actions = document.getElementsByName('action_remove');
+    if (actions.length) {
+        actions[0].addEventListener("click", function(e) {
+            if (!confirm(message)) {
+                e.preventDefault();
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

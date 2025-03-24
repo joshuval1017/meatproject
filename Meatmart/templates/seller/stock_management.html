@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Stock Management - MEATMART{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-0">Stock Management</h1>
+            <p class="text-muted">Manage your product inventory</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'seller:add_product' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Add New Product
+            </a>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" name="search" class="form-control" placeholder="Search products..." 
+                               value="{{ request.GET.search }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="stock_status" class="form-select">
+                        <option value="">All Stock Status</option>
+                        <option value="out" {% if request.GET.stock_status == 'out' %}selected{% endif %}>Out of Stock</option>
+                        <option value="low" {% if request.GET.stock_status == 'low' %}selected{% endif %}>Low Stock</option>
+                        <option value="in" {% if request.GET.stock_status == 'in' %}selected{% endif %}>In Stock</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-1"></i>Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Product</th>
+                            <th>Category</th>
+                            <th>Stock</th>
+                            <th>Alert Threshold</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="{{ product.name }}" 
+                                         class="rounded" style="width: 48px; height: 48px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="rounded bg-light d-flex align-items-center justify-content-center" 
+                                         style="width: 48px; height: 48px;">
+                                        <i class="fas fa-box text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div class="ms-3">
+                                        <h6 class="mb-0">{{ product.name }}</h6>
+                                        <small class="text-muted">SKU: {{ product.sku }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ product.category.name }}</td>
+                            <td>
+                                <h6 class="mb-0">{{ product.stock_quantity }} kg</h6>
+                                <small class="text-muted">Last updated: {{ product.updated_at|date:"M d, Y" }}</small>
+                            </td>
+                            <td>{{ product.alert_threshold }} kg</td>
+                            <td>
+                                {% if product.stock_quantity <= 0 %}
+                                <span class="badge bg-danger">Out of Stock</span>
+                                {% elif product.stock_quantity <= product.alert_threshold %}
+                                <span class="badge bg-warning">Low Stock</span>
+                                {% else %}
+                                <span class="badge bg-success">In Stock</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                <button class="btn btn-sm btn-outline-primary me-1" 
+                                        onclick="updateStock({{ product.id }}, '{{ product.name }}', {{ product.stock_quantity }})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning" 
+                                        onclick="setAlert({{ product.id }}, '{{ product.name }}', {{ product.alert_threshold }})">
+                                    <i class="fas fa-bell"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-box fa-3x mb-3"></i>
+                                    <p class="mb-0">No products found</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if products.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if products.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ products.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.stock_status %}&stock_status={{ request.GET.stock_status }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in products.paginator.page_range %}
+                {% if products.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.stock_status %}&stock_status={{ request.GET.stock_status }}{% endif %}">
+                        {{ num }}
+                    </a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if products.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ products.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.stock_status %}&stock_status={{ request.GET.stock_status }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Update Stock Modal -->
+<div class="modal fade" id="updateStockModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateStockForm" method="post" action="">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Current Stock</label>
+                        <input type="text" class="form-control" id="currentStock" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Change Type</label>
+                        <select class="form-select" name="change_type" required>
+                            <option value="ADDITION">Add Stock</option>
+                            <option value="REDUCTION">Reduce Stock</option>
+                            <option value="ADJUSTMENT">Set New Value</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Quantity (kg)</label>
+                        <input type="number" class="form-control" name="quantity" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Reason for Change</label>
+                        <textarea class="form-control" name="reason" rows="2" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="updateStockForm" class="btn btn-primary">Update Stock</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Set Alert Modal -->
+<div class="modal fade" id="setAlertModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Set Stock Alert</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="setAlertForm" method="post" action="">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Alert Threshold (kg)</label>
+                        <input type="number" class="form-control" name="threshold" step="0.01" required>
+                        <div class="form-text">
+                            You will be notified when stock falls below this level
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="setAlertForm" class="btn btn-primary">Set Alert</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateStock(productId, productName, currentStock) {
+    const modal = document.getElementById('updateStockModal');
+    const form = document.getElementById('updateStockForm');
+    const title = modal.querySelector('.modal-title');
+    
+    title.textContent = `Update Stock: ${productName}`;
+    form.action = `/seller/stock/${productId}/update/`;
+    document.getElementById('currentStock').value = `${currentStock} kg`;
+    
+    new bootstrap.Modal(modal).show();
+}
+
+function setAlert(productId, productName, currentThreshold) {
+    const modal = document.getElementById('setAlertModal');
+    const form = document.getElementById('setAlertForm');
+    const title = modal.querySelector('.modal-title');
+    const input = form.querySelector('input[name="threshold"]');
+    
+    title.textContent = `Set Alert: ${productName}`;
+    form.action = `/seller/stock/${productId}/alert/`;
+    input.value = currentThreshold;
+    
+    new bootstrap.Modal(modal).show();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<!-- <div class="hero-wrapper">
+    <video class="hero-video" autoplay loop muted playsinline>
+        <source src="{% static 'videos/admin.mp4' %}" type="video/mp4">
+    </video>
+    <div class="hero-content">
+        <h1 class="hero-title">Premium Quality Meat</h1>
+        <p class="hero-subtitle">Experience the finest selection of fresh, premium quality meat delivered right to your doorstep</p>
+        <div class="hero-buttons d-flex">
+            <a href="{% url 'shop:products' %}" class="btn btn-hero btn-primary">Shop Now</a>
+            <a href="#features" class="btn btn-hero btn-outline-light">Learn More</a>
+        </div>
+    </div>
+</div> -->
+
+        <!-- Main content -->
+       
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <!-- <h1 class="h2">MEATMART ADMIN</h1> -->
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card text-white bg-primary">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Users</h5>
+                            <p class="card-text display-6">{{ total_users }}</p>
+                            <small>{{ new_users_today }} new today</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-success">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Orders</h5>
+                            <p class="card-text display-6">{{ total_orders }}</p>
+                            <small>{{ orders_today }} today</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-info">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Products</h5>
+                            <p class="card-text display-6">{{ total_products }}</p>
+                            <small>{{ pending_approvals }} pending approval</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-warning">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Revenue</h5>
+                            <p class="card-text display-6">₹{{ total_revenue }}</p>
+                            <small>₹{{ revenue_today }} today</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            
+   
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        padding: 2rem;
+    }
+    
+    .hero-wrapper {
+        position: relative;
+        /* height: 85vh; */
+        background: #000;
+        overflow: hidden;
+    }
+    
+    .hero-video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.6;
+    }
+    .hero-title {
+        font-size: clamp(2.5rem, 8vw, 5rem);
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 2rem;
+        font-family: var(--heading-font);
+        text-transform: uppercase;
+        letter-spacing: -2px;
+        animation: slideUp 1s ease;
+    }
+    
+    .hero-subtitle {
+        font-size: clamp(1rem, 4vw, 1.5rem);
+        margin-bottom: 3rem;
+        font-weight: 500;
+        animation: slideUp 1s ease 0.3s;
+        animation-fill-mode: both;
+        max-width: 900px;
+    }
+    
+    .hero-buttons {
+        animation: slideUp 1s ease 0.6s;
+        animation-fill-mode: both;
+    }
+
+   
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Approve product
+        $('.approve-product').click(function() {
+            var productId = $(this).data('product-id');
+            if (confirm('Are you sure you want to approve this product?')) {
+                $.post("{% url 'admin_dashboard:approve_product' 0 %}".replace('0', productId))
+                    .done(function() {
+                        location.reload();
+                    })
+                    .fail(function(xhr) {
+                        alert('Error: ' + xhr.responseText);
+                    });
+            }
+        });
+
+        // Reject product
+        $('.reject-product').click(function() {
+            var productId = $(this).data('product-id');
+            if (confirm('Are you sure you want to reject this product?')) {
+                $.post("{% url 'admin_dashboard:reject_product' 0 %}".replace('0', productId))
+                    .done(function() {
+                        location.reload();
+                    })
+                    .fail(function(xhr) {
+                        alert('Error: ' + xhr.responseText);
+                    });
+            }
+        });
+    });
+</script>
+{% endblock %}

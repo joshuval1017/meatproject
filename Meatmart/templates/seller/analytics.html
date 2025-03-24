@@ -1,0 +1,402 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Analytics - MEATMART{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/apexcharts@3.41.0/dist/apexcharts.css" rel="stylesheet">
+<style>
+    .stat-card {
+        transition: transform 0.2s;
+        border: none;
+        border-radius: 15px;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .chart-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .table-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .date-filter-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        background: linear-gradient(to right, #f8f9fa, #ffffff);
+    }
+    .btn-download {
+        border-radius: 10px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">Analytics Dashboard</h1>
+            <p class="text-muted">Track your business performance and growth</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-download btn-outline-primary" onclick="downloadReport('sales')">
+                <i class="fas fa-download me-2"></i>Sales Report
+            </button>
+            <button class="btn btn-download btn-outline-primary" onclick="downloadReport('products')">
+                <i class="fas fa-download me-2"></i>Products Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="card date-filter-card mb-4">
+        <div class="card-body">
+            <form id="dateRangeForm" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Date Range</label>
+                    <select class="form-select" id="dateRangeSelect" name="range">
+                        <option value="7">Last 7 Days</option>
+                        <option value="30" selected>Last 30 Days</option>
+                        <option value="90">Last 90 Days</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+                <div class="col-md-3" id="startDateContainer" style="display: none;">
+                    <label class="form-label fw-bold">Start Date</label>
+                    <input type="date" class="form-control" name="start_date" value="{{ start_date|date:'Y-m-d' }}">
+                </div>
+                <div class="col-md-3" id="endDateContainer" style="display: none;">
+                    <label class="form-label fw-bold">End Date</label>
+                    <input type="date" class="form-control" name="end_date" value="{{ end_date|date:'Y-m-d' }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Apply Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card bg-primary bg-gradient text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-white-50">Total Sales</h6>
+                            <h2 class="mb-0">₹{{ sales_stats.total_amount|default:0|floatformat:2 }}</h2>
+                            <small>{{ sales_stats.total_orders|default:0 }} orders</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chart-line fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-success bg-gradient text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-white-50">Total Quantity</h6>
+                            <h2 class="mb-0">{{ sales_stats.total_quantity|default:0 }}</h2>
+                            <small>kg sold</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-weight fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-info bg-gradient text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-white-50">Avg Order Value</h6>
+                            <h2 class="mb-0">₹{{ sales_stats.avg_order_value|default:0|floatformat:2 }}</h2>
+                            <small>per order</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-shopping-cart fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-warning bg-gradient text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-white-50">Unique Buyers</h6>
+                            <h2 class="mb-0">{{ sales_stats.unique_buyers|default:0 }}</h2>
+                            <small>this period</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sales Trend Chart -->
+        <div class="col-md-8">
+            <div class="card chart-card h-100">
+                <div class="card-header bg-transparent border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Sales Trend</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-secondary active" onclick="updateChartType('area')">Area</button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="updateChartType('bar')">Bar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="salesTrendChart" style="height: 350px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Products -->
+        <div class="col-md-4">
+            <div class="card table-card h-100">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">Top Products</h5>
+                </div>
+                <div class="card-body px-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">Product</th>
+                                    <th>Sales</th>
+                                    <th class="pe-4">Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in top_products %}
+                                <tr>
+                                    <td class="ps-4">{{ product.name }}</td>
+                                    <td>₹{{ product.total_sales|floatformat:2 }}</td>
+                                    <td class="pe-4">{{ product.total_quantity }} kg</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-4">
+                                        <p class="text-muted mb-0">No data available</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue by Category -->
+    <div class="card table-card mt-4">
+        <div class="card-header bg-transparent border-0">
+            <h5 class="mb-0">Revenue by Category</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Total Sales</th>
+                            <th>Total Quantity</th>
+                            <th>Products</th>
+                            <th>Performance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in revenue_by_category %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-folder me-2 text-warning"></i>
+                                    {{ category.name }}
+                                </div>
+                            </td>
+                            <td>₹{{ category.total_sales|floatformat:2 }}</td>
+                            <td>{{ category.total_quantity }} kg</td>
+                            <td>{{ category.product_count }}</td>
+                            <td>
+                                <div class="progress" style="height: 6px; width: 120px;">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: {{ category.sales_percentage }}%"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <p class="text-muted mb-0">No category data available</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+// Handle date range selector
+document.getElementById('dateRangeSelect').addEventListener('change', function() {
+    const customFields = document.getElementById('startDateContainer');
+    const endDateField = document.getElementById('endDateContainer');
+    if (this.value === 'custom') {
+        customFields.style.display = 'block';
+        endDateField.style.display = 'block';
+    } else {
+        customFields.style.display = 'none';
+        endDateField.style.display = 'none';
+    }
+});
+
+// Sales Trend Chart
+var salesOptions = {
+    series: [{
+        name: 'Sales',
+        data: {{ chart_data.amounts|safe }}
+    }],
+    chart: {
+        height: 350,
+        type: 'area',
+        toolbar: {
+            show: false
+        },
+        animations: {
+            enabled: true,
+            easing: 'easeinout',
+            speed: 800
+        }
+    },
+    dataLabels: {
+        enabled: false
+    },
+    stroke: {
+        curve: 'smooth',
+        width: 2
+    },
+    xaxis: {
+        categories: {{ chart_data.dates|safe }},
+        labels: {
+            formatter: function(value) {
+                return new Date(value).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short'
+                });
+            }
+        }
+    },
+    yaxis: {
+        labels: {
+            formatter: function(value) {
+                return '₹' + value.toFixed(0)
+            }
+        }
+    },
+    colors: ['#4CAF50'],
+    fill: {
+        type: 'gradient',
+        gradient: {
+            shadeIntensity: 1,
+            opacityFrom: 0.7,
+            opacityTo: 0.2,
+            stops: [0, 90, 100]
+        }
+    },
+    tooltip: {
+        x: {
+            formatter: function(value) {
+                return new Date(salesOptions.xaxis.categories[value]).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+            }
+        },
+        y: {
+            formatter: function(value) {
+                return '₹' + value.toFixed(2)
+            }
+        }
+    }
+};
+
+var salesChart = new ApexCharts(document.querySelector("#salesTrendChart"), salesOptions);
+salesChart.render();
+
+// Function to update chart type
+function updateChartType(type) {
+    // Update active button state
+    const buttons = document.querySelectorAll('.btn-group .btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+
+    // Update chart type
+    salesChart.updateOptions({
+        chart: {
+            type: type
+        },
+        fill: {
+            type: type === 'area' ? 'gradient' : 'solid',
+            opacity: type === 'area' ? [0.7, 0.2] : 1,
+            gradient: type === 'area' ? {
+                shadeIntensity: 1,
+                opacityFrom: 0.7,
+                opacityTo: 0.2,
+                stops: [0, 90, 100]
+            } : undefined
+        }
+    });
+}
+
+// Handle report downloads
+function downloadReport(type) {
+    const dateRange = document.getElementById('dateRangeSelect').value;
+    let url = `/seller/download-report/${type}/?range=${dateRange}`;
+    
+    if (dateRange === 'custom') {
+        const startDate = document.querySelector('input[name="start_date"]').value;
+        const endDate = document.querySelector('input[name="end_date"]').value;
+        url += `&start_date=${startDate}&end_date=${endDate}`;
+    }
+    
+    window.location.href = url;
+}
+</script>
+{% endblock %}

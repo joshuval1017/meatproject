@@ -1,0 +1,68 @@
+.order-track {
+    margin: 30px 0;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+}
+
+.order-track-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.order-track-step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f1f1f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    position: relative;
+    z-index: 2;
+}
+
+.order-track-step.active .order-track-step-icon {
+    background-color: #6152e4;
+    color: white;
+}
+
+.order-track-step.completed .order-track-step-icon {
+    background-color: #28a745;
+    color: white;
+}
+
+.order-track-step-line {
+    flex: 1;
+    height: 3px;
+    background-color: #f1f1f1;
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    z-index: 1;
+}
+
+.order-track-step-line.active {
+    background-color: #6152e4;
+}
+
+.order-track-step-name {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #555;
+    text-align: center;
+}
+
+.order-track-step.active .order-track-step-name {
+    color: #6152e4;
+    font-weight: bold;
+}
+
+.order-track-step.completed .order-track-step-name {
+    color: #28a745;
+    font-weight: bold;
+}

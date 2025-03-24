@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile - MEATMART Delivery{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-section {
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .profile-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        margin-bottom: 1rem;
+        object-fit: cover;
+        border: 4px solid #35e341;
+    }
+
+    .profile-name {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-status {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .status-active {
+        background-color: rgba(53, 227, 65, 0.1);
+        color: #28a745;
+    }
+
+    .status-inactive {
+        background-color: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+    }
+
+    .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #35e341;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-section {
+        margin-top: 2rem;
+    }
+
+    .form-section h3 {
+        margin-bottom: 1.5rem;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #2c3e50;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        padding: 0.75rem 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #35e341;
+        box-shadow: 0 0 0 0.2rem rgba(53, 227, 65, 0.25);
+    }
+
+    .btn-save {
+        background-color: #35e341;
+        border-color: #35e341;
+        padding: 0.75rem 2rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-radius: 50px;
+    }
+
+    .btn-save:hover {
+        background-color: #28a745;
+        border-color: #28a745;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+    }
+
+    .document-section {
+        margin-top: 2rem;
+    }
+
+    .document-card {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .document-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .document-icon {
+        width: 40px;
+        height: 40px;
+        background: #fff;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #35e341;
+    }
+
+    .document-status {
+        font-size: 0.9rem;
+        padding: 0.25rem 1rem;
+        border-radius: 50px;
+    }
+
+    .status-verified {
+        background-color: rgba(53, 227, 65, 0.1);
+        color: #28a745;
+    }
+
+    .status-pending {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="profile-section">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            {% if request.user.delivery_profile.profile_picture %}
+                <img src="{{ request.user.delivery_profile.profile_picture.url }}" alt="Profile Picture" class="profile-avatar">
+            {% else %}
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM1ZTM0MSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMCAyMXYtMmE0IDQgMCAwIDAtNC00SDhhNCA0IDAgMCAwLTQgNHYyIj48L3BhdGg+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ij48L2NpcmNsZT48L3N2Zz4=" alt="Profile Picture" class="profile-avatar">
+            {% endif %}
+            <h1 class="profile-name">{{ request.user.get_full_name }}</h1>
+            <span class="profile-status {% if request.user.delivery_profile.is_available %}status-active{% else %}status-inactive{% endif %}">
+                {% if request.user.delivery_profile.is_available %}Available{% else %}Not Available{% endif %}
+            </span>
+        </div>
+
+        <!-- Profile Stats -->
+        <div class="profile-stats">
+            <div class="stat-card">
+                <div class="stat-value">{{ total_deliveries }}</div>
+                <div class="stat-label">Total Deliveries</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">₹{{ total_earnings }}</div>
+                <div class="stat-label">Total Earnings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ rating|floatformat:1 }}/5.0</div>
+                <div class="stat-label">Average Rating</div>
+            </div>
+        </div>
+
+        <!-- Profile Form -->
+        <form method="POST" enctype="multipart/form-data" class="form-section">
+            {% csrf_token %}
+            <h3>Personal Information</h3>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label">First Name</label>
+                    <input type="text" name="first_name" class="form-control" value="{{ request.user.first_name }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" name="last_name" class="form-control" value="{{ request.user.last_name }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" value="{{ request.user.email }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" name="phone" class="form-control" value="{{ request.user.phone }}" required>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Address</label>
+                    <textarea name="address" class="form-control" rows="3" required>{{ request.user.address }}</textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Profile Picture</label>
+                    <input type="file" name="profile_picture" class="form-control" accept="image/*">
+                </div>
+            </div>
+
+            <h3 class="mt-5">Vehicle Information</h3>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label">Vehicle Type</label>
+                    <select name="vehicle_type" class="form-control" required>
+                        <option value="bike" {% if vehicle_type == 'bike' %}selected{% endif %}>Bike</option>
+                        <option value="scooter" {% if vehicle_type == 'scooter' %}selected{% endif %}>Scooter</option>
+                        <option value="cycle" {% if vehicle_type == 'cycle' %}selected{% endif %}>Cycle</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Vehicle Number</label>
+                    <input type="text" name="vehicle_number" class="form-control" value="{{ vehicle_number }}" required>
+                </div>
+            </div>
+
+            <div class="document-section">
+                <h3>Documents</h3>
+                <div class="document-card">
+                    <div class="document-info">
+                        <div class="document-icon">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">ID Proof</h5>
+                            <p class="mb-0 text-muted">Aadhar Card or Driving License</p>
+                        </div>
+                    </div>
+                    <span class="document-status {% if id_verified %}status-verified{% else %}status-pending{% endif %}">
+                        {% if id_verified %}Verified{% else %}Pending{% endif %}
+                    </span>
+                </div>
+                <div class="document-card">
+                    <div class="document-info">
+                        <div class="document-icon">
+                            <i class="fas fa-motorcycle"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">Vehicle Registration</h5>
+                            <p class="mb-0 text-muted">Vehicle RC Book</p>
+                        </div>
+                    </div>
+                    <span class="document-status {% if vehicle_verified %}status-verified{% else %}status-pending{% endif %}">
+                        {% if vehicle_verified %}Verified{% else %}Pending{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <button type="submit" class="btn btn-save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Preview profile picture before upload
+    document.querySelector('input[name="profile_picture"]').addEventListener('change', function(e) {
+        if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.querySelector('.profile-avatar').src = e.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+</script>
+{% endblock %}

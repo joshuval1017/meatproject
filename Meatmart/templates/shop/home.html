@@ -1,0 +1,405 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}MEATMART - Premium Quality Meat{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #ff4757;
+        --secondary-color: #2f3542;
+        --accent-color: #ffa502;
+        --text-color: #2f3542;
+        --light-bg: #f1f2f6;
+        --heading-font: 'Raleway', sans-serif;
+        --body-font: 'Nunito', sans-serif;
+        --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    /* Base Styles */
+    body {
+        font-family: var(--body-font);
+        color: var(--text-color);
+        overflow-x: hidden;
+    }
+
+    /* Animations */
+    @keyframes slideUp {
+        from {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes scaleIn {
+        from {
+            transform: scale(0.9);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Hero Section */
+    .hero-wrapper {
+        position: relative;
+        height: 85vh;
+        background: #000;
+        overflow: hidden;
+    }
+
+    .hero-video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.6;
+    }
+
+    .hero-content {
+       
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        padding: 2rem;
+    }
+
+    .hero-title {
+        font-size: clamp(2.5rem, 8vw, 5rem);
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 2rem;
+        font-family: var(--heading-font);
+        text-transform: uppercase;
+        letter-spacing: -2px;
+        animation: slideUp 1s ease;
+    }
+
+    .hero-subtitle {
+        font-size: clamp(1rem, 4vw, 1.5rem);
+        margin-bottom: 3rem;
+        font-weight: 300;
+        animation: slideUp 1s ease 0.3s;
+        animation-fill-mode: both;
+        max-width: 800px;
+    }
+
+    .hero-buttons {
+        animation: slideUp 1s ease 0.6s;
+        animation-fill-mode: both;
+    }
+
+    .btn-hero {
+        padding: 1rem 3rem;
+        font-size: 1.2rem;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 600;
+        transition: var(--transition);
+        margin: 0.5rem;
+    }
+
+    /* Features Section */
+    .features-section {
+        padding: 8rem 0;
+        background: white;
+        position: relative;
+    }
+
+    .feature-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        text-align: center;
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    }
+
+    .feature-card:hover * {
+        color: white;
+    }
+
+    .feature-icon {
+        font-size: 3.5rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        transition: var(--transition);
+    }
+
+    /* Products Section */
+    .products-section {
+        padding: 8rem 0;
+        background: var(--light-bg);
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
+        height: 100%;
+        position: relative;
+    }
+
+    .product-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .product-content {
+        padding: 2rem;
+    }
+
+    .product-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--secondary-color);
+    }
+
+    .product-price {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-product {
+        flex: 1;
+        padding: 0.75rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+
+    /* CTA Section */
+    .cta-section {
+        padding: 8rem 0;
+        background-image: url('https://images.pexels.com/photos/1633941/pexels-photo-1633941.jpeg?auto=compress&cs=tinysrgb&w=600');
+        color: white;
+        text-align: center;
+    }
+
+    .cta-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 2rem;
+        animation: slideUp 1s ease;
+    }
+
+    .cta-subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 3rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        animation: slideUp 1s ease 0.3s;
+        animation-fill-mode: both;
+    }
+
+    .btn-cta {
+        padding: 1.2rem 4rem;
+        font-size: 1.3rem;
+        border-radius: 50px;
+        background: white;
+        color: var(--primary-color);
+        font-weight: 700;
+        transition: var(--transition);
+        animation: slideUp 1s ease 0.6s;
+        animation-fill-mode: both;
+    }
+
+    .btn-cta:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(255, 255, 255, 0.2);
+        background: var(--secondary-color);
+        color: white;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .hero-buttons {
+            flex-direction: column;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn-hero {
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+
+        .feature-card,
+        .product-card {
+            margin-bottom: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-wrapper">
+    <video class="hero-video" autoplay loop muted playsinline>
+        <source src="{% static 'videos/meat-bg.mp4' %}" type="video/mp4">
+    </video>
+    <div class="hero-content">
+        <h1 class="hero-title">Premium Quality Meat</h1>
+        <p class="hero-subtitle">Experience the finest selection of fresh, premium quality meat delivered right to your doorstep</p>
+        <div class="hero-buttons d-flex">
+            <a href="{% url 'shop:products' %}" class="btn btn-hero btn-primary">Shop Now</a>
+            <a href="#features" class="btn btn-hero btn-outline-light">Learn More</a>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section id="features" class="features-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up">
+                <div class="feature-card">
+                    <i class="feature-icon fas fa-truck"></i>
+                    <h3 class="feature-title">Fast Delivery</h3>
+                    <p>Same-day delivery for orders placed before 2 PM</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-card">
+                    <i class="feature-icon fas fa-medal"></i>
+                    <h3 class="feature-title">Premium Quality</h3>
+                    <p>Hand-selected premium cuts from trusted suppliers</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-card">
+                    <i class="feature-icon fas fa-shield-alt"></i>
+                    <h3 class="feature-title">Safe & Hygienic</h3>
+                    <p>HACCP certified processing and packaging</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Products Section -->
+<section class="products-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title" data-aos="fade-up">Featured Products</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Discover our selection of premium meat cuts</p>
+        </div>
+        <div class="row g-4">
+            {% for product in featured_products %}
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1|stringformat:'d00' }}">
+                <div class="product-card">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                    {% else %}
+                    <img src="{% static 'images/default-product.jpg' %}" alt="{{ product.name }}" class="product-image">
+                    {% endif %}
+                    {% if product.is_featured %}
+                    <span class="product-badge">Featured</span>
+                    {% endif %}
+                    <div class="product-content">
+                        <h3 class="product-title">{{ product.name }}</h3>
+                        <div class="product-price">₱{{ product.price }}</div>
+                        <div class="product-actions">
+                            <button onclick="addToCart('{{ product.id }}')" class="btn btn-primary btn-product">
+                                <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                            </button>
+                            <button onclick="addToWishlist('{{ product.id }}')" class="btn btn-outline-primary btn-product">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <h2 class="cta-title">Ready to Order?</h2>
+        <p class="cta-subtitle">Join thousands of satisfied customers who trust us for their premium meat needs</p>
+        <a href="{% url 'shop:products' %}" class="btn btn-cta">Start Shopping</a>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add to cart function
+    function addToCart(productId) {
+        // Add your cart functionality here
+        console.log('Adding product to cart:', productId);
+    }
+
+    // Add to wishlist function
+    function addToWishlist(productId) {
+        // Add your wishlist functionality here
+        console.log('Adding product to wishlist:', productId);
+    }
+
+    // Initialize AOS
+    AOS.init({
+        duration: 800,
+        once: true
+    });
+</script>
+{% endblock %}

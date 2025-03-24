@@ -1,0 +1,117 @@
+.review-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.review-header {
+    background: linear-gradient(135deg, #6152e4 0%, #4a3fd5 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.review-header h4 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.star-rating {
+    font-size: 2.5em;
+    color: #ffd700;
+    cursor: pointer;
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.star-rating .star {
+    display: inline-block;
+    transition: all 0.2s ease-in-out;
+    margin: 0 5px;
+}
+
+.star-rating .star:hover {
+    transform: scale(1.2);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.star-rating .star.selected,
+.star-rating .star:hover,
+.star-rating .star:hover ~ .star {
+    color: #ffd700;
+}
+
+.star-rating[data-rating="0"] .star {
+    color: #e0e0e0;
+}
+
+.review-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+}
+
+.order-summary-table {
+    background: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.order-summary-table thead {
+    background: #6152e4;
+    color: white;
+}
+
+.order-summary-table th,
+.order-summary-table td {
+    padding: 1rem;
+}
+
+.review-form textarea {
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    transition: border-color 0.2s ease;
+}
+
+.review-form textarea:focus {
+    border-color: #6152e4;
+    box-shadow: 0 0 0 0.2rem rgba(97, 82, 228, 0.25);
+}
+
+.btn-submit-review {
+    background: #6152e4;
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-submit-review:hover {
+    background: #4a3fd5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(97, 82, 228, 0.2);
+}
+
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+}
+
+.breadcrumb-item a {
+    color: #6152e4;
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: #6c757d;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: #6c757d;
+}
